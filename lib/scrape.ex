@@ -15,7 +15,8 @@ defmodule Scrape do
   ## Example
       iex> Scrape.fetch "https://inblack67.vercel.app"
       {:ok,
-      %{
+      %Scrape.Structs{
+      data: %{
       assets: ["./icons/phoex.png", "./icons/github.svg", "./icons/youtube.svg",
         "./icons/typescript.svg", "./icons/js.svg", "./icons/nodejs.svg",
         "./icons/reactjs.svg", "./icons/flutter.svg", "./icons/elixir.svg",
@@ -77,7 +78,7 @@ defmodule Scrape do
         "https://www.youtube.com/channel/UC8Pz6DKs7Kw-qCeJkS9D8iQ",
         "https://stackoverflow.com/users/12136900/aman-bhardwaj",
         "https://www.npmjs.com/~inblack67", "https://www.linkedin.com/in/inblack67"]
-      }}
+      }}}
   """
   def fetch(url) do
     res = HTTPoison.get(url)
@@ -98,7 +99,9 @@ defmodule Scrape do
               |> Floki.find("a")
               |> Floki.attribute("href")
 
-            {:ok, %{assets: imageUrls, links: linkUrls}}
+            {:ok, %Scrape.Structs{data: %{assets: imageUrls, links: linkUrls}}}
+
+          # {:ok, %Scrape.Structs{assets: imageUrls, links: linkUrls}}
 
           {:error, reason} ->
             {:error, reason}
