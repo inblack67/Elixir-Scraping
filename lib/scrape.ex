@@ -17,7 +17,7 @@ defmodule Scrape do
       {
       :ok,
       %Scrape.Structs{
-        data: %{
+        scraped_data: %{
           assets: [
             "/images/logo/logo.png",
             "https://spawnfest.org/img/nav_title.png",
@@ -99,7 +99,7 @@ defmodule Scrape do
                   |> Floki.find("a")
                   |> Floki.attribute("href")
 
-                {:ok, %Scrape.Structs{data: %{assets: imageUrls, links: linkUrls}}}
+                {:ok, %Scrape.Structs{scraped_data: %{assets: imageUrls, links: linkUrls}}}
 
               {:error, reason} ->
                 {:error, reason}

@@ -1,3 +1,3 @@
 defmodule Scrape.Structs do
-  defstruct data: %{assets: [], links: []}
+  defstruct scraped_data: %{assets: [], links: []}
 end
