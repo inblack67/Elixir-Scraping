@@ -81,40 +81,52 @@ defmodule Scrape do
       }}}
   """
   def fetch(url) do
-    res = HTTPoison.get(url)
+    task = Task.async(__MODULE__, :fetch_url, [url])
 
-    case res do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        parseRes = body |> Floki.parse_document()
+    task_res = Task.await(task)
 
-        case parseRes do
-          {:ok, html} ->
-            imageUrls =
-              html
-              |> Floki.find("img")
-              |> Floki.attribute("src")
+    case task_res do
+      {:ok, res} ->
+        case res do
+          %HTTPoison.Response{status_code: 200, body: body} ->
+            parseRes = body |> Floki.parse_document()
 
-            linkUrls =
-              html
-              |> Floki.find("a")
-              |> Floki.attribute("href")
+            case parseRes do
+              {:ok, html} ->
+                imageUrls =
+                  html
+                  |> Floki.find("img")
+                  |> Floki.attribute("src")
 
-            {:ok, %Scrape.Structs{data: %{assets: imageUrls, links: linkUrls}}}
+                linkUrls =
+                  html
+                  |> Floki.find("a")
+                  |> Floki.attribute("href")
 
-          # {:ok, %Scrape.Structs{assets: imageUrls, links: linkUrls}}
+                {:ok, %Scrape.Structs{data: %{assets: imageUrls, links: linkUrls}}}
 
-          {:error, reason} ->
-            {:error, reason}
+              {:error, reason} ->
+                {:error, reason}
+            end
+
+          %HTTPoison.Response{status_code: 404} ->
+            {:ok, 404}
+
+          _ ->
+            {:error, 500}
         end
 
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        {:ok, 404}
+      {:error, error} ->
+        {:error, error}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
-
-      true ->
+      _ ->
         {:error, 500}
     end
+  end
+
+  @doc false
+  def fetch_url(url) do
+    res = HTTPoison.get(url)
+    res
   end
 end

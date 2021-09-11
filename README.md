@@ -1,21 +1,10 @@
 # Scrape
 
-**TODO: Add description**
+- Web Scraping In Elixir
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `scrape` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:scrape, "~> 0.1.0"}
-  ]
-end
+```sh
+mix docs # to generate docs
+open docs/index.html # to view the docs
+mix test # to run tests
+iex -S mix # to start the app
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/scrape](https://hexdocs.pm/scrape).
-
