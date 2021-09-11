@@ -23,7 +23,8 @@ defmodule Scrape.MixProject do
   defp deps do
     [
       {:floki, "~> 0.31.0"},
-      {:httpoison, "~> 1.8"}
+      {:httpoison, "~> 1.8"},
+      {:ex_doc, "~> 0.25.2"}
     ]
   end
 end
