@@ -18,54 +18,15 @@ defmodule Scrape do
       iex> Scrape.fetch "https://elixir-lang.org"
       {
       :ok,
-      %Scrape.Structs{
+      %Scrape{
         scraped_data: %{
           assets: [
             "/images/logo/logo.png",
             "https://spawnfest.org/img/nav_title.png",
-            "/images/logo/eef.png"
+            "/images/logo/eef.png",
+            ...
           ],
           links: [
-            "/",
-            "/",
-            "/install.html",
-            "/learning.html",
-            "/getting-started/introduction.html",
-            "/cases.html",
-            "/docs.html",
-            "/development.html",
-            "/blog/",
-            "/getting-started/introduction.html",
-            "/learning.html",
-            "/cases.html",
-            "/blog/2021/07/29/bootstraping-a-multiplayer-server-with-elixir-at-x-plane/",
-            "/blog/2021/06/02/social-virtual-spaces-with-elixir-at-mozilla/",
-            "/blog/2021/04/02/marketing-and-sales-intelligence-with-elixir-at-pepsico/",
-            "/blog/2021/02/03/social-messaging-with-elixir-at-community/",
-            "/blog/2021/01/13/orchestrating-computer-vision-with-elixir-at-v7/",
-            "/blog/2020/12/10/integrating-travel-with-elixir-at-duffel/",
-            "/blog/2020/11/17/real-time-collaboration-with-elixir-at-slab/",
-            "/blog/2020/10/27/delivering-social-change-with-elixir-at-change.org/",
-            "/blog/2020/10/08/real-time-communication-at-scale-with-elixir-at-discord/",
-            "/blog/2020/09/24/paas-with-elixir-at-Heroku/",
-            "/blog/2020/08/20/embedded-elixir-at-farmbot/",
-            "https://hexdocs.pm/ex_unit/",
-            "https://hexdocs.pm/mix/",
-            "https://hex.pm/",
-            "https://hexdocs.pm/",
-            "https://hexdocs.pm/iex/",
-            "https://www.heroku.com",
-            "https://www.whatsapp.com",
-            "https://klarna.com",
-            "/getting-started/introduction.html",
-            "/docs.html",
-            "/crash-course.html",
-            "/blog/2021/05/19/elixir-v1-12-0-released/",
-            "https://github.com/elixir-lang/elixir",
-            "irc://irc.libera.chat/elixir",
-            "https://twitter.com/elixirlang",
-            "https://cult.honeypot.io/originals/elixir-the-documentary",
-            "https://spawnfest.org/",
             "https://hex.pm",
             "http://elixirforum.com",
             "https://elixir-slackin.herokuapp.com/",
@@ -73,7 +34,7 @@ defmodule Scrape do
             "http://elixir.meetup.com",
             "https://github.com/elixir-lang/elixir/wiki",
             "https://erlef.org/",
-            "/trademarks"
+            ...
           ]
         }
       }}
@@ -83,24 +44,17 @@ defmodule Scrape do
 
     task_res = Task.await(task)
 
-    case task_res do
-      {:ok, res} ->
-        with %HTTPoison.Response{status_code: 200, body: body} <- res do
-          parsed_res = body |> Floki.parse_document()
-          scrape_response(parsed_res)
-        else
-          %HTTPoison.Response{status_code: 404} ->
-            {:ok, 404}
-
-          _ ->
-            {:error, 500}
-        end
+    with {:ok, res} <- task_res,
+         %HTTPoison.Response{status_code: 200, body: body} <- res do
+      body
+      |> Floki.parse_document()
+      |> scrape_response()
+    else
+      %HTTPoison.Response{status_code: 404} ->
+        {:ok, 404}
 
       {:error, error} ->
         {:error, error}
-
-      _ ->
-        {:error, 500}
     end
   end
 

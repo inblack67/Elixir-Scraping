@@ -1,4 +1,4 @@
 defmodule ScrapeTest do
   use ExUnit.Case
-  doctest Scrape
+  # doctest Scrape
 end
