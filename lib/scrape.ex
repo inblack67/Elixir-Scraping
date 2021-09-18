@@ -83,34 +83,29 @@ defmodule Scrape do
 
     case task_res do
       {:ok, res} ->
-        case res do
-          %HTTPoison.Response{status_code: 200, body: body} ->
-            parseRes = body |> Floki.parse_document()
-
-            case parseRes do
-              {:ok, html} ->
-                imageUrls =
-                  html
-                  |> Floki.find("img")
-                  |> Floki.attribute("src")
-
-                linkUrls =
-                  html
-                  |> Floki.find("a")
-                  |> Floki.attribute("href")
-
-                {:ok, %Scrape.Structs{scraped_data: %{assets: imageUrls, links: linkUrls}}}
-
-              {:error, reason} ->
-                {:error, reason}
-            end
-
+        with %HTTPoison.Response{status_code: 200, body: body} <- res do
+          parseRes = body |> Floki.parse_document()
+          scrape_response(parseRes)
+        else
           %HTTPoison.Response{status_code: 404} ->
             {:ok, 404}
 
           _ ->
             {:error, 500}
         end
+
+      # case res do
+      #   %HTTPoison.Response{status_code: 200, body: body} ->
+      #     parseRes = body |> Floki.parse_document()
+
+      #     scrape_response(parseRes)
+
+      #   %HTTPoison.Response{status_code: 404} ->
+      #     {:ok, 404}
+
+      #   _ ->
+      #     {:error, 500}
+      # end
 
       {:error, error} ->
         {:error, error}
@@ -124,5 +119,23 @@ defmodule Scrape do
   def fetch_url(url) do
     res = HTTPoison.get(url)
     res
+  end
+
+  defp scrape_response({:ok, html}) do
+    imageUrls =
+      html
+      |> Floki.find("img")
+      |> Floki.attribute("src")
+
+    linkUrls =
+      html
+      |> Floki.find("a")
+      |> Floki.attribute("href")
+
+    {:ok, %Scrape.Structs{scraped_data: %{assets: imageUrls, links: linkUrls}}}
+  end
+
+  defp scrape_response({:error, error}) do
+    {:error, error}
   end
 end
