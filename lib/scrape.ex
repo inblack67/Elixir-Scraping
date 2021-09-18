@@ -1,4 +1,6 @@
 defmodule Scrape do
+  defstruct scraped_data: %{assets: [], links: []}
+
   @moduledoc """
     Provides a function `fetch/1` to scrape the web
   """
@@ -84,8 +86,8 @@ defmodule Scrape do
     case task_res do
       {:ok, res} ->
         with %HTTPoison.Response{status_code: 200, body: body} <- res do
-          parseRes = body |> Floki.parse_document()
-          scrape_response(parseRes)
+          parsed_res = body |> Floki.parse_document()
+          scrape_response(parsed_res)
         else
           %HTTPoison.Response{status_code: 404} ->
             {:ok, 404}
@@ -93,19 +95,6 @@ defmodule Scrape do
           _ ->
             {:error, 500}
         end
-
-      # case res do
-      #   %HTTPoison.Response{status_code: 200, body: body} ->
-      #     parseRes = body |> Floki.parse_document()
-
-      #     scrape_response(parseRes)
-
-      #   %HTTPoison.Response{status_code: 404} ->
-      #     {:ok, 404}
-
-      #   _ ->
-      #     {:error, 500}
-      # end
 
       {:error, error} ->
         {:error, error}
@@ -116,26 +105,21 @@ defmodule Scrape do
   end
 
   @doc false
-  def fetch_url(url) do
-    res = HTTPoison.get(url)
-    res
-  end
+  def fetch_url(url), do: HTTPoison.get(url)
 
   defp scrape_response({:ok, html}) do
-    imageUrls =
+    image_urls =
       html
       |> Floki.find("img")
       |> Floki.attribute("src")
 
-    linkUrls =
+    link_urls =
       html
       |> Floki.find("a")
       |> Floki.attribute("href")
 
-    {:ok, %Scrape.Structs{scraped_data: %{assets: imageUrls, links: linkUrls}}}
+    {:ok, %Scrape{scraped_data: %{assets: image_urls, links: link_urls}}}
   end
 
-  defp scrape_response({:error, error}) do
-    {:error, error}
-  end
+  defp scrape_response({:error, error}), do: {:error, error}
 end
